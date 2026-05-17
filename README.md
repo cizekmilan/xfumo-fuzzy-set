@@ -262,13 +262,11 @@ Possible next steps:
 
 Current status:
 
-* ✅ modernized to `.NET 10`
-* ✅ SDK-style project file
-* ✅ xUnit v3 test project included
 * ✅ public API uses English naming
 * ✅ Czech XML comments are included in the source code
-* ✅ finite fuzzy set operations are implemented and covered by tests
-* ✅ binary fuzzy relation operations are implemented and covered by tests
+* ✅ finite fuzzy sets are implemented with basic characteristics and set operations
+* ✅ binary fuzzy relations are implemented with projections, image, and max-min composition
+* ✅ behavior is covered by an xUnit test suite
 
 # License
 
