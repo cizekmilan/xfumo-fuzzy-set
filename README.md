@@ -8,9 +8,9 @@ This project provides a small educational .NET library for finite fuzzy sets, bi
 
 In a classical set, membership is binary: an element is either inside the set or outside it.
 
-In a fuzzy set, membership is gradual:
+In a fuzzy set, membership is gradual. For example, the fuzzy set "high temperature" could assign these grades:
 
-| Value | Membership in "high temperature" |
+| Value | Membership grade |
 | --- | ---: |
 | `10 °C` | `0.0` |
 | `20 °C` | `0.3` |
