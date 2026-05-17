@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <RootNamespace>Fuzzy</RootNamespace>
+    <AssemblyName>FuzzySet</AssemblyName>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <PackageId>FuzzySet</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Milan Cizek</Authors>
+    <Description>.NET library for finite fuzzy sets and basic fuzzy logic operations.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="FuzzySet.Tests\**\*.cs" />
+    <EmbeddedResource Remove="FuzzySet.Tests\**\*" />
+    <None Remove="FuzzySet.Tests\**\*" />
+  </ItemGroup>
+</Project>
