@@ -18,6 +18,12 @@ namespace Fuzzy.Tests
             Assert.True(expected.Equals(actual), FormatSetComparison(expected, actual));
         }
 
+        // Ověří množinovou rovnost fuzzy relací a při chybě vypíše obě hodnoty.
+        public static void Equal(FuzzyRelation expected, FuzzyRelation actual)
+        {
+            Assert.True(expected.Equals(actual), FormatSetComparison(expected, actual));
+        }
+
         // Sestaví čitelnou chybovou zprávu pro porovnání očekávané a skutečné množiny.
         private static string FormatSetComparison(object expected, object actual)
         {
