@@ -1,8 +1,8 @@
-# Finite Fuzzy Sets for .NET
+# Finite Fuzzy Sets and Relations for .NET
 
 Fuzzy logic is useful when a value does not fit cleanly into a simple yes/no category. Instead of saying that an element either belongs or does not belong to a set, a fuzzy set assigns a membership grade between `0` and `1`. This makes it possible to model gradual concepts such as low temperature, medium risk, high similarity, or partial truth.
 
-This project provides a small educational .NET library for finite fuzzy sets and the basic operations needed to combine, compare, and inspect them.
+This project provides a small educational .NET library for finite fuzzy sets, binary fuzzy relations, and the basic operations needed to combine, compare, inspect, and compose them.
 
 # 💡 What Is a Fuzzy Set?
 
@@ -25,9 +25,9 @@ This style of modelling is useful for domains where natural language categories 
 
 FuzzySet started as coursework for fuzzy modelling and is now shaped as a reusable library.
 
-The current version focuses on finite fuzzy sets. It does not contain a demo application yet. The main proof of behavior is the xUnit test suite, and the README includes a compact usage example for working with two fuzzy sets.
+The current version focuses on finite fuzzy sets and binary fuzzy relations. It does not contain a demo application yet. The main proof of behavior is the xUnit test suite, and the README includes compact usage examples for working with fuzzy sets and relations.
 
-The goal of the project is not to become a complete fuzzy logic framework in the first release. The current version provides a clean base for finite fuzzy sets, standard operations, and a future extension toward fuzzy relations.
+The goal of the project is not to become a complete fuzzy logic framework in the first release. The current version provides a clean base for finite fuzzy sets, standard operations, and the first layer of relation operations.
 
 # When Is This Useful?
 
@@ -36,8 +36,9 @@ This kind of library can be used as a building block for:
 * educational experiments with fuzzy set theory
 * simple decision models with gradual categories
 * comparing vague or partial classifications
+* modelling gradual relationships between two universes
 * prototyping fuzzy rules before building a larger fuzzy inference system
-* future work with fuzzy relations and relation composition
+* experimenting with max-min relation composition
 
 # 🧠 Library Model
 
@@ -50,17 +51,22 @@ The library currently contains these core types:
 | `CrispSet` | Classical set used for universes, cuts, support, kernel, and boundary. |
 | `Universe` | Crisp universe over which fuzzy sets can be interpreted. |
 | `FuzzyLogic` | Static operations over fuzzy sets. |
+| `FuzzyRelationElement` | One pair of values and its membership grade in a binary fuzzy relation. |
+| `FuzzyRelation` | Finite binary fuzzy relation over two universes. |
+| `FuzzyRelationLogic` | Static operations over binary fuzzy relations. |
 
 Important modelling notes:
 
 * missing values in a `FuzzySet` are interpreted as membership grade `0`
 * membership grade `0` is not stored explicitly
+* missing pairs in a `FuzzyRelation` are interpreted as membership grade `0`
 * operations over two fuzzy sets validate compatible universes when both sets define one
+* relation composition validates compatible middle universes when both relations define one
 * public API names are in English, while source comments are Czech because the project keeps its study-project origin
 
 # 🧮 Supported Operations
 
-The public operations are split into two groups: characteristics that describe a single fuzzy set, and operations that create or compare fuzzy sets from existing ones.
+The public operations are split into three groups: characteristics that describe a single fuzzy set, operations that create or compare fuzzy sets, and operations over binary fuzzy relations.
 
 ## Basic Set Characteristics
 
@@ -91,6 +97,16 @@ The public operations are split into two groups: characteristics that describe a
 
 The older names `GetRegularIntersection` and `GetRegularUnion` remain available as obsolete compatibility aliases for the standard operations.
 
+## Fuzzy Relation Operations
+
+| Operation | Method | Formula |
+| --- | --- | --- |
+| Cartesian product | `FuzzyRelationLogic.GetCartesianProduct(left, right)` | `min(a, b)` |
+| left projection | `FuzzyRelationLogic.GetLeftProjection(relation)` | `max_y R(x, y)` |
+| right projection | `FuzzyRelationLogic.GetRightProjection(relation)` | `max_x R(x, y)` |
+| image | `FuzzyRelationLogic.GetImage(set, relation)` | `max_x min(A(x), R(x, y))` |
+| composition | `FuzzyRelationLogic.GetComposition(left, right)` | `max_y min(R(x, y), S(y, z))` |
+
 # 📐 Mathematical Notes
 
 For binary operations, `a` means the membership grade of a value in the left fuzzy set and `b` means the membership grade of the same value in the right fuzzy set.
@@ -102,7 +118,9 @@ Standard union and intersection use the most common fuzzy set definitions:
 * complement is calculated relative to a universe
 * missing values are treated as membership grade `0`
 
-Residua are implication-like operations. They are included because they are useful in fuzzy logic and will also be relevant if the project later grows toward fuzzy relations.
+Residua are implication-like operations. They are included because they are useful in fuzzy logic and can also be used in future extensions around fuzzy rules.
+
+For binary fuzzy relations, `R(x, y)` means the membership grade of the pair `(x, y)` in relation `R`. Projections summarize a relation back into a fuzzy set, and composition links two relations through a shared middle universe.
 
 # ✨ Usage Example
 
@@ -129,6 +147,26 @@ double temperatureHeight = FuzzyLogic.GetHeight(temperature);
 bool isTemperatureNormal = FuzzyLogic.IsNormal(temperature);
 ```
 
+Relation example:
+
+```csharp
+Universe inputs = new Universe("low", "medium", "high");
+Universe outputs = new Universe("slow", "normal", "fast");
+
+FuzzySet temperature = new FuzzySet(inputs);
+temperature.Add(new FuzzyElement("low", 0.2));
+temperature.Add(new FuzzyElement("medium", 0.7));
+temperature.Add(new FuzzyElement("high", 1.0));
+
+FuzzyRelation speedRelation = new FuzzyRelation(inputs, outputs);
+speedRelation.Add(new FuzzyRelationElement("low", "slow", 0.8));
+speedRelation.Add(new FuzzyRelationElement("medium", "normal", 0.9));
+speedRelation.Add(new FuzzyRelationElement("high", "fast", 1.0));
+
+FuzzySet recommendedSpeed = FuzzyRelationLogic.GetImage(temperature, speedRelation);
+FuzzySet outputCoverage = FuzzyRelationLogic.GetRightProjection(speedRelation);
+```
+
 # 🗂️ Project Structure
 
 ```text
@@ -136,6 +174,9 @@ bool isTemperatureNormal = FuzzyLogic.IsNormal(temperature);
 |-- CrispSet.cs                  # Classical set implementation
 |-- FuzzyElement.cs              # Value with membership grade
 |-- FuzzyLogic.cs                # Fuzzy set operations
+|-- FuzzyRelation.cs             # Binary fuzzy relation implementation
+|-- FuzzyRelationElement.cs      # Pair of values with membership grade
+|-- FuzzyRelationLogic.cs        # Fuzzy relation operations
 |-- FuzzySet.cs                  # Finite fuzzy set implementation
 |-- Universe.cs                  # Universe of discourse
 |
@@ -143,6 +184,9 @@ bool isTemperatureNormal = FuzzyLogic.IsNormal(temperature);
 |   |-- CrispSetTests.cs
 |   |-- FuzzyElementTests.cs
 |   |-- FuzzyLogicTests.cs
+|   |-- FuzzyRelationElementTests.cs
+|   |-- FuzzyRelationLogicTests.cs
+|   |-- FuzzyRelationTests.cs
 |   |-- FuzzySetTests.cs
 |   `-- SetAssert.cs
 |
@@ -188,15 +232,17 @@ The test suite currently covers:
 * fuzzy set storage rules and membership lookup
 * kernel, support, alpha-cuts, boundary, height, normality, and cardinality
 * subset checks, complement, difference, unions, intersections, and residua
+* binary fuzzy relation storage and membership lookup
+* Cartesian product, projections, image, and max-min relation composition
 * invalid input and incompatible universe validation
 
 # ⚠️ Current Limitations
 
 Known limitations:
 
-* the model is currently object-based rather than generic, for example `FuzzySet<string>`
+* the model is currently object-based rather than generic, for example `FuzzySet<string>` or `FuzzyRelation<string, int>`
 * only finite fuzzy sets are supported
-* fuzzy relations are not implemented yet
+* only binary fuzzy relations are supported
 * there is no demo application or console runner in this release
 * advanced t-norms, s-norms, and implication families can be added later
 
@@ -204,9 +250,10 @@ Known limitations:
 
 Possible next steps:
 
-* fuzzy relations
-* relation composition
+* n-ary fuzzy relations
+* relation properties such as reflexivity, symmetry, and transitivity
 * fuzzy equivalence and ordering relations
+* additional relation composition variants
 * additional t-norms, s-norms, and implications
 * optional generic API once the core model stabilizes
 * small demo project or examples directory if the library grows beyond unit-test examples
@@ -221,6 +268,7 @@ Current status:
 * ✅ public API uses English naming
 * ✅ Czech XML comments are included in the source code
 * ✅ finite fuzzy set operations are implemented and covered by tests
+* ✅ binary fuzzy relation operations are implemented and covered by tests
 
 # License
 
