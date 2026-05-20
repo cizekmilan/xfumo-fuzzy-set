@@ -114,7 +114,8 @@ The older names `GetRegularIntersection` and `GetRegularUnion` remain available 
 
 | Method | Operation |
 | --- | --- |
-| COG / COA | `FuzzyDefuzzification.GetCenterOfGravity(set, selector)` |
+| COG | `FuzzyDefuzzification.GetCenterOfGravity(set, selector)` |
+| COA | `FuzzyDefuzzification.GetCenterOfArea(set, selector)` |
 | COS | `FuzzyDefuzzification.GetCenterOfSums(sets, selector)` |
 | MOM | `FuzzyDefuzzification.GetMeanOfMaxima(set, selector)` |
 | FOM | `FuzzyDefuzzification.GetFirstOfMaxima(set, selector)` |
