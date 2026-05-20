@@ -2,7 +2,7 @@
 
 Fuzzy logic is useful when a value does not fit cleanly into a simple yes/no category. Instead of saying that an element either belongs or does not belong to a set, a fuzzy set assigns a membership grade between `0` and `1`. This makes it possible to model gradual concepts such as low temperature, medium risk, high similarity, or partial truth.
 
-This project provides a small educational .NET library for finite fuzzy sets, binary fuzzy relations, and the basic operations needed to combine, compare, inspect, and compose them.
+This project provides a small educational .NET library for finite fuzzy sets, binary fuzzy relations, defuzzification, and the basic operations needed to combine, compare, inspect, and compose them.
 
 # 💡 What Is a Fuzzy Set?
 
@@ -25,7 +25,7 @@ This style of modelling is useful for domains where natural language categories 
 
 FuzzySet started as coursework for fuzzy modelling and is now shaped as a reusable library.
 
-The current version focuses on finite fuzzy sets and binary fuzzy relations. It does not contain a demo application yet. The main proof of behavior is the xUnit test suite, and the README includes compact usage examples for working with fuzzy sets and relations.
+The current version focuses on finite fuzzy sets, binary fuzzy relations, and discrete defuzzification methods. It does not contain a demo application yet. The main proof of behavior is the xUnit test suite, and the README includes compact usage examples for working with fuzzy sets and relations.
 
 The goal of the project is not to become a complete fuzzy logic framework in the first release. The current version provides a clean base for finite fuzzy sets, standard operations, and the first layer of relation operations.
 
@@ -39,6 +39,7 @@ This kind of library can be used as a building block for:
 * modelling gradual relationships between two universes
 * prototyping fuzzy rules before building a larger fuzzy inference system
 * experimenting with max-min relation composition
+* converting fuzzy outputs back to crisp numeric values
 
 # 🧠 Library Model
 
@@ -54,6 +55,7 @@ The library currently contains these core types:
 | `FuzzyRelationElement` | One pair of values and its membership grade in a binary fuzzy relation. |
 | `FuzzyRelation` | Finite binary fuzzy relation over two universes. |
 | `FuzzyRelationLogic` | Static operations over binary fuzzy relations. |
+| `FuzzyDefuzzification` | Static defuzzification methods for finite fuzzy sets. |
 
 Important modelling notes:
 
@@ -62,11 +64,12 @@ Important modelling notes:
 * missing pairs in a `FuzzyRelation` are interpreted as membership grade `0`
 * operations over two fuzzy sets validate compatible universes when both sets define one
 * relation composition validates compatible middle universes when both relations define one
+* defuzzification requires a value selector that maps set values to a numeric axis
 * public API names are in English, while source comments are Czech because the project keeps its study-project origin
 
 # 🧮 Supported Operations
 
-The public operations are split into three groups: characteristics that describe a single fuzzy set, operations that create or compare fuzzy sets, and operations over binary fuzzy relations.
+The public operations are split into four groups: characteristics that describe a single fuzzy set, operations that create or compare fuzzy sets, operations over binary fuzzy relations, and defuzzification methods.
 
 ## Basic Set Characteristics
 
@@ -107,6 +110,16 @@ The older names `GetRegularIntersection` and `GetRegularUnion` remain available 
 | image | `FuzzyRelationLogic.GetImage(set, relation)` | `max_x min(A(x), R(x, y))` |
 | composition | `FuzzyRelationLogic.GetComposition(left, right)` | `max_y min(R(x, y), S(y, z))` |
 
+## Defuzzification Methods
+
+| Method | Operation |
+| --- | --- |
+| COG / COA | `FuzzyDefuzzification.GetCenterOfGravity(set, selector)` |
+| COS | `FuzzyDefuzzification.GetCenterOfSums(sets, selector)` |
+| MOM | `FuzzyDefuzzification.GetMeanOfMaxima(set, selector)` |
+| FOM | `FuzzyDefuzzification.GetFirstOfMaxima(set, selector)` |
+| LOM | `FuzzyDefuzzification.GetLastOfMaxima(set, selector)` |
+
 # 📐 Mathematical Notes
 
 For binary operations, `a` means the membership grade of a value in the left fuzzy set and `b` means the membership grade of the same value in the right fuzzy set.
@@ -121,6 +134,8 @@ Standard union and intersection use the most common fuzzy set definitions:
 Residua are implication-like operations. They are included because they are useful in fuzzy logic and can also be used in future extensions around fuzzy rules.
 
 For binary fuzzy relations, `R(x, y)` means the membership grade of the pair `(x, y)` in relation `R`. Projections summarize a relation back into a fuzzy set, and composition links two relations through a shared middle universe.
+
+Defuzzification converts a fuzzy set back to one crisp numeric value. Because `FuzzySet` can store any object values, each defuzzification method receives a selector such as `x => Convert.ToDouble(x)`.
 
 # ✨ Usage Example
 
@@ -167,12 +182,27 @@ FuzzySet recommendedSpeed = FuzzyRelationLogic.GetImage(temperature, speedRelati
 FuzzySet outputCoverage = FuzzyRelationLogic.GetRightProjection(speedRelation);
 ```
 
+Defuzzification example:
+
+```csharp
+Universe fanSpeed = new Universe(0, 25, 50, 75, 100);
+
+FuzzySet speedOutput = new FuzzySet(fanSpeed);
+speedOutput.Add(new FuzzyElement(25, 0.4));
+speedOutput.Add(new FuzzyElement(50, 0.8));
+speedOutput.Add(new FuzzyElement(75, 0.8));
+
+double centerOfGravity = FuzzyDefuzzification.GetCenterOfGravity(speedOutput, x => Convert.ToDouble(x));
+double meanOfMaxima = FuzzyDefuzzification.GetMeanOfMaxima(speedOutput, x => Convert.ToDouble(x));
+```
+
 # 🗂️ Project Structure
 
 ```text
 /
 |-- CrispSet.cs                  # Classical set implementation
 |-- FuzzyElement.cs              # Value with membership grade
+|-- FuzzyDefuzzification.cs      # Defuzzification methods
 |-- FuzzyLogic.cs                # Fuzzy set operations
 |-- FuzzyRelation.cs             # Binary fuzzy relation implementation
 |-- FuzzyRelationElement.cs      # Pair of values with membership grade
@@ -182,6 +212,7 @@ FuzzySet outputCoverage = FuzzyRelationLogic.GetRightProjection(speedRelation);
 |
 |-- FuzzySet.Tests/              # xUnit test project
 |   |-- CrispSetTests.cs
+|   |-- FuzzyDefuzzificationTests.cs
 |   |-- FuzzyElementTests.cs
 |   |-- FuzzyLogicTests.cs
 |   |-- FuzzyRelationElementTests.cs
@@ -234,6 +265,7 @@ The test suite currently covers:
 * subset checks, complement, difference, unions, intersections, and residua
 * binary fuzzy relation storage and membership lookup
 * Cartesian product, projections, image, and max-min relation composition
+* COG/COA, COS, MOM, FOM, and LOM defuzzification
 * invalid input and incompatible universe validation
 
 # ⚠️ Current Limitations
@@ -243,6 +275,7 @@ Known limitations:
 * the model is currently object-based rather than generic, for example `FuzzySet<string>` or `FuzzyRelation<string, int>`
 * only finite fuzzy sets are supported
 * only binary fuzzy relations are supported
+* defuzzification is discrete and requires a numeric value selector
 * there is no demo application or console runner in this release
 * advanced t-norms, s-norms, and implication families can be added later
 
@@ -266,6 +299,7 @@ Current status:
 * ✅ Czech XML comments are included in the source code
 * ✅ finite fuzzy sets are implemented with basic characteristics and set operations
 * ✅ binary fuzzy relations are implemented with projections, image, and max-min composition
+* ✅ discrete defuzzification methods are implemented
 * ✅ behavior is covered by an xUnit test suite
 
 # License
