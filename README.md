@@ -201,29 +201,29 @@ double meanOfMaxima = FuzzyDefuzzification.GetMeanOfMaxima(speedOutput, x => Con
 
 ```text
 /
-|-- CrispSet.cs                  # Classical set implementation
-|-- FuzzyElement.cs              # Value with membership grade
-|-- FuzzyDefuzzification.cs      # Defuzzification methods
-|-- FuzzyLogic.cs                # Fuzzy set operations
-|-- FuzzyRelation.cs             # Binary fuzzy relation implementation
-|-- FuzzyRelationElement.cs      # Pair of values with membership grade
-|-- FuzzyRelationLogic.cs        # Fuzzy relation operations
-|-- FuzzySet.cs                  # Finite fuzzy set implementation
-|-- Universe.cs                  # Universe of discourse
-|
-|-- FuzzySet.Tests/              # xUnit test project
-|   |-- CrispSetTests.cs
-|   |-- FuzzyDefuzzificationTests.cs
-|   |-- FuzzyElementTests.cs
-|   |-- FuzzyLogicTests.cs
-|   |-- FuzzyRelationElementTests.cs
-|   |-- FuzzyRelationLogicTests.cs
-|   |-- FuzzyRelationTests.cs
-|   |-- FuzzySetTests.cs
-|   `-- SetAssert.cs
-|
-|-- FuzzySet.csproj
-`-- FuzzySet.sln
+├── CrispSet.cs                  # Classical set implementation
+├── FuzzyElement.cs              # Value with membership grade
+├── FuzzyDefuzzification.cs      # Defuzzification methods
+├── FuzzyLogic.cs                # Fuzzy set operations
+├── FuzzyRelation.cs             # Binary fuzzy relation implementation
+├── FuzzyRelationElement.cs      # Pair of values with membership grade
+├── FuzzyRelationLogic.cs        # Fuzzy relation operations
+├── FuzzySet.cs                  # Finite fuzzy set implementation
+├── Universe.cs                  # Universe of discourse
+│
+├── FuzzySet.Tests/              # xUnit test project
+│   ├── CrispSetTests.cs
+│   ├── FuzzyDefuzzificationTests.cs
+│   ├── FuzzyElementTests.cs
+│   ├── FuzzyLogicTests.cs
+│   ├── FuzzyRelationElementTests.cs
+│   ├── FuzzyRelationLogicTests.cs
+│   ├── FuzzyRelationTests.cs
+│   ├── FuzzySetTests.cs
+│   └── SetAssert.cs
+│
+├── FuzzySet.csproj
+└── FuzzySet.sln
 ```
 
 # 🔧 Requirements
